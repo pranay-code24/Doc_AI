@@ -20,3 +20,5 @@ RERANK_MODEL_NAME = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
 QDRANT_COLLECTION = "doc_ai_chunks"
 NLI_MODEL_NAME = "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli"
 AMENDMENT_GRAPH_FILE = STORAGE_DIR / "amendment_graph.json"
+UPLOAD_DOCS_DIR = STORAGE_DIR / "uploaded_docs"
+UPLOAD_DOCS_DIR.mkdir(parents=True, exist_ok=True)
