@@ -76,8 +76,15 @@ export interface CalculationResult {
   citation: CitationHighlight;
 }
 
+export interface GuardrailCheck {
+  name: string;
+  status: string;
+  detail: string;
+}
+
 export interface QueryResponse {
   question: string;
+  language?: string;
   abstained: boolean;
   answer: string;
   faithfulness: {
@@ -92,4 +99,50 @@ export interface QueryResponse {
   amendment_chains: AmendmentChain[];
   contradictions: ContradictionItem[];
   calculation: CalculationResult | null;
+  guardrails?: {
+    status: string;
+    block_type: string | null;
+    warnings: string[];
+    checks: GuardrailCheck[];
+  };
+  telemetry?: {
+    provider: string;
+    model: string;
+    cache_hit: boolean;
+    timing_ms: Record<string, number>;
+  };
+}
+
+export interface BenchmarkCaseRow {
+  id: string;
+  category: string;
+  question: string;
+  passed: boolean;
+  abstained: boolean;
+  faithfulness_percent: number;
+  latency_ms: number;
+  guardrail_status: string;
+  answer_preview: string;
+  notes: string;
+}
+
+export interface BenchmarkReport {
+  has_report: boolean;
+  generated_at?: string;
+  provider?: string;
+  model?: string;
+  summary?: {
+    overall_accuracy_percent: number;
+    tests_passed: number;
+    total_tests: number;
+    avg_faithfulness_percent: number;
+    hallucination_leak_rate_percent: number;
+    abstention_accuracy_percent: number;
+    guardrail_block_rate_percent: number;
+    avg_latency_ms: number;
+    avg_full_pipeline_latency_ms: number;
+    p50_latency_ms: number;
+    p95_latency_ms: number;
+  };
+  cases?: BenchmarkCaseRow[];
 }
