@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 from typing import Any
+import pdfplumber
 import pymupdf
 
 
@@ -33,7 +34,6 @@ def table_to_markdown(rows: list[list[Any]]) -> str:
         "| " + " | ".join(["---"] * len(header)) + " |",
     ]
     for row in cleaned_rows[1:]:
-        # Ensure column count matches header
         padded = row + [""] * (len(header) - len(row))
         lines.append("| " + " | ".join(padded[: len(header)]) + " |")
     return "\n".join(lines)
@@ -59,7 +59,6 @@ def is_heading(text: str) -> bool:
     single_line = " ".join(text.split())
     if HEADING_PATTERN.match(single_line):
         return True
-    # Short title without ending full stop
     if len(single_line) < 85 and not single_line.endswith(".") and "Document ID:" not in single_line:
         return True
     return False
@@ -67,12 +66,12 @@ def is_heading(text: str) -> bool:
 
 def parse_pdf(pdf_path: Path) -> tuple[list[dict], list[dict]]:
     """
-    Single PDF ko parse karta hai.
-    Returns:
-      - chunks: list of clause/table chunk dicts (with exact bboxes)
-      - pages: list of raw page text dicts (Phase 3 quote verification ke liye)
+    Single PDF ko parse karta hai:
+      - Tables: pdfplumber (exact decimals, commas aur spaces preserve karne ke liye)
+      - Text + BBoxes: PyMuPDF
     """
     doc = pymupdf.open(pdf_path)
+    plumber_doc = pdfplumber.open(pdf_path)
     doc_name = pdf_path.name
     chunks: list[dict] = []
     pages: list[dict] = []
@@ -80,12 +79,13 @@ def parse_pdf(pdf_path: Path) -> tuple[list[dict], list[dict]]:
 
     for page_index in range(len(doc)):
         page = doc[page_index]
+        p_page = plumber_doc.pages[page_index]
         page_num = page_index + 1
         page_w = round(page.rect.width, 2)
         page_h = round(page.rect.height, 2)
 
-        # Raw page text save karo (Phase 3 exact quote matching ke liye)
-        raw_page_text = page.get_text("text").strip()
+        # Raw page text (pdfplumber ka text spacing zyada clean hota hai)
+        raw_page_text = (p_page.extract_text() or page.get_text("text")).strip()
         pages.append(
             {
                 "doc_name": doc_name,
@@ -96,11 +96,10 @@ def parse_pdf(pdf_path: Path) -> tuple[list[dict], list[dict]]:
             }
         )
 
-        # 1. Page ke saare tables nikalo
-        found_tables = page.find_tables()
+        # 1. pdfplumber se exact tables + unke bounding boxes nikalo
         table_items = []
         table_bboxes = []
-        for tbl in found_tables.tables:
+        for tbl in p_page.find_tables():
             md = table_to_markdown(tbl.extract())
             if md:
                 bbox = [round(v, 2) for v in tbl.bbox]
@@ -114,11 +113,11 @@ def parse_pdf(pdf_path: Path) -> tuple[list[dict], list[dict]]:
                     }
                 )
 
-        # 2. Non-table text blocks nikalo
+        # 2. Non-table text blocks nikalo (PyMuPDF words se clean spaces ke saath)
         text_items = []
-        for b in page.get_text("blocks"):
+        for b in page.get_text("blocks", sort=True):
             x0, y0, x1, y1, text, _, block_type = b
-            if block_type != 0:  # Ignore images
+            if block_type != 0:
                 continue
             clean_text = " ".join(text.split())
             if not clean_text:
@@ -134,10 +133,10 @@ def parse_pdf(pdf_path: Path) -> tuple[list[dict], list[dict]]:
                 }
             )
 
-        # 3. Text aur tables ko top-to-bottom reading order me sort karo
+        # 3. Top-to-bottom reading order me sort karo
         all_items = sorted(text_items + table_items, key=lambda item: item["y0"])
 
-        # 4. Clause-aware chunking (Heading + uske niche ka content ek saath)
+        # 4. Clause-aware chunking
         current_title = "Document Header"
         current_texts: list[str] = []
         current_bboxes: list[list[float]] = []
@@ -166,8 +165,6 @@ def parse_pdf(pdf_path: Path) -> tuple[list[dict], list[dict]]:
 
         for item in all_items:
             if item["type"] == "table":
-                # Pehle agar koi body text pending hai toh flush karo,
-                # lekin agar sirf heading pending thi toh usko table ke saath jodo!
                 if len(current_texts) > 1 or (
                     len(current_texts) == 1 and not is_heading(current_texts[0])
                 ):
@@ -175,7 +172,6 @@ def parse_pdf(pdf_path: Path) -> tuple[list[dict], list[dict]]:
                     table_text = f"{current_title}\n{item['text']}"
                     table_bboxes_list = [item["bbox"]]
                 else:
-                    # Heading + table ko ek chunk me rakho
                     prefix = "\n".join(current_texts)
                     table_text = f"{prefix}\n{item['text']}".strip()
                     table_bboxes_list = current_bboxes + [item["bbox"]]
@@ -199,7 +195,6 @@ def parse_pdf(pdf_path: Path) -> tuple[list[dict], list[dict]]:
             else:
                 text = item["text"]
                 if is_heading(text) and current_texts:
-                    # Naya section start hua -> purana chunk save karo
                     flush_text_chunk()
                     current_title = text
                     current_texts = [text]
@@ -212,18 +207,16 @@ def parse_pdf(pdf_path: Path) -> tuple[list[dict], list[dict]]:
 
         flush_text_chunk()
 
+    plumber_doc.close()
     doc.close()
     return chunks, pages
 
 
 def parse_folder(folder_path: Path) -> tuple[list[dict], list[dict]]:
-    """Folder ke saare PDFs ko ek saath parse karta hai."""
     all_chunks: list[dict] = []
     all_pages: list[dict] = []
-
     for pdf_path in sorted(folder_path.glob("*.pdf")):
         chunks, pages = parse_pdf(pdf_path)
         all_chunks.extend(chunks)
         all_pages.extend(pages)
-
     return all_chunks, all_pages

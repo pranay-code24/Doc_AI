@@ -151,7 +151,7 @@
     "page_height": 841.89,
     "section_title": "Clause 7.1: Schedule of Standard Fees and Charges",
     "chunk_type": "table",
-    "text": "Clause 7.1: Schedule of Standard Fees and Charges\n| FeeType | ApplicableRate/Amount | Remarks |\n| --- | --- | --- |\n| ProcessingFee | 15%ofLoanAmount . | MinimumINR1500 , |\n| BounceCharge | INR500perinstance | FordishonouredNACH/ECS |\n| ForeclosureFee | 30%ofPrincipalOutstanding . | Allowedafter12EMIs |\n| StatementCopyFee | INR250 | Physicalbranchcopy |",
+    "text": "Clause 7.1: Schedule of Standard Fees and Charges\n| Fee Type | Applicable Rate / Amount | Remarks |\n| --- | --- | --- |\n| Processing Fee | 1.5% of Loan Amount | Minimum INR 1,500 |\n| Bounce Charge | INR 500 per instance | For dishonoured NACH/ECS |\n| Foreclosure Fee | 3.0% of Principal Outstanding | Allowed after 12 EMIs |\n| Statement Copy Fee | INR 250 | Physical branch copy |",
     "bboxes": [
       [
         78.0,
@@ -595,7 +595,7 @@
     "page_height": 841.89,
     "section_title": "Clause 3.1: Digital Convenience and Late Fee Cap",
     "chunk_type": "table",
-    "text": "Clause 3.1: Digital Convenience and Late Fee Cap\n| Parameter | Rule/Value |\n| --- | --- |\n| DigitalOnboardingFee | INR750flat |\n| MinimumMonthlyIncome | INR30000 , |\n| GracePeriodforEMI | 5calendardays |",
+    "text": "Clause 3.1: Digital Convenience and Late Fee Cap\n| Parameter | Rule / Value |\n| --- | --- |\n| Digital Onboarding Fee | INR 750 flat |\n| Minimum Monthly Income | INR 30,000 |\n| Grace Period for EMI | 5 calendar days |",
     "bboxes": [
       [
         78.0,
@@ -604,10 +604,10 @@
         392.3
       ],
       [
-        65.64,
-        412.71,
-        336.23,
-        494.18
+        57.64,
+        404.0,
+        537.64,
+        500.0
       ]
     ]
   }

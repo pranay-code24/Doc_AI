@@ -27,7 +27,7 @@ class HybridRetriever:
     def __init__(self):
         print(f"Loading embedding model: {EMBED_MODEL_NAME} ...")
         self.embedder = SentenceTransformer(EMBED_MODEL_NAME)
-        self.vector_size = self.embedder.get_sentence_embedding_dimension()
+        self.vector_size = self.embedder.get_embedding_dimension()
 
         print(f"Loading multilingual reranker: {RERANK_MODEL_NAME} ...")
         self.reranker = CrossEncoder(RERANK_MODEL_NAME)
