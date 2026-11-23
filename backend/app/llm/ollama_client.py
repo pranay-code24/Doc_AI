@@ -13,7 +13,8 @@ def call_ollama_json(
     timeout: int = 120,
 ) -> dict[str, Any]:
     """
-    Local Ollama /api/chat ko call karta hai with strict JSON schema & temperature=0.0.
+    Local Ollama /api/chat ko call karta hai with strict JSON schema,
+    temperature=0.0, aur bounded token limit taaki kabhi hang/timeout na ho.
     """
     payload = {
         "model": model,
@@ -25,7 +26,9 @@ def call_ollama_json(
         "format": json_schema,
         "options": {
             "temperature": 0.0,
-            "num_ctx": 8192,
+            "repeat_penalty": 1.15,
+            "num_ctx": 4096,
+            "num_predict": 512,
         },
     }
 
@@ -40,7 +43,6 @@ def call_ollama_json(
     try:
         return json.loads(raw_content)
     except json.JSONDecodeError:
-        # Safety fallback agar model ne markdown code block me wrap kiya ho
         start = raw_content.find("{")
         end = raw_content.rfind("}")
         if start != -1 and end != -1:

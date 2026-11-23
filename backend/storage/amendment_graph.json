@@ -1,0 +1,221 @@
+{
+  "docs": {
+    "DocA_Loan_Policy_2023.pdf": {
+      "doc_name": "DocA_Loan_Policy_2023.pdf",
+      "doc_id": "POL-2023-01",
+      "effective_date": "2023-04-01",
+      "amends_doc_ids": [],
+      "clause_changes": [
+        {
+          "clause_ref": "Clause 3.1",
+          "subject": "Applicant Eligibility",
+          "action": "retains",
+          "new_value_summary": ""
+        },
+        {
+          "clause_ref": "Clause 4.2",
+          "subject": "Base Interest Rate",
+          "action": "defines",
+          "new_value_summary": "9.50% per annum on a reducing balance basis"
+        },
+        {
+          "clause_ref": "Clause 5.1",
+          "subject": "Late Payment Penalty",
+          "action": "supersedes",
+          "new_value_summary": "2.0% per month shall be levied on the overdue EMI amount (previously unspecified)"
+        }
+      ]
+    },
+    "DocB_Circular_2024.pdf": {
+      "doc_name": "DocB_Circular_2024.pdf",
+      "doc_id": "CIRC-2024-07",
+      "effective_date": "2024-04-01",
+      "amends_doc_ids": [
+        "POL-2023-01"
+      ],
+      "clause_changes": [
+        {
+          "clause_ref": "Clause 4.2",
+          "subject": "Base Interest Rate",
+          "action": "supersedes",
+          "new_value_summary": "from 9.50% per annum to 10.50% per annum on a reducing balance basis"
+        },
+        {
+          "clause_ref": "Clause 5.1",
+          "subject": "Late Payment Penalty",
+          "action": "supersedes",
+          "new_value_summary": "from 2.0% per month to 3.0% per month on the overdue EMI amount"
+        }
+      ]
+    },
+    "DocC_Circular_2025.pdf": {
+      "doc_name": "DocC_Circular_2025.pdf",
+      "doc_id": "CIRC-2025-12",
+      "effective_date": "2025-04-01",
+      "amends_doc_ids": [
+        "CIRC-2024-07"
+      ],
+      "clause_changes": [
+        {
+          "clause_ref": "Clause 4.2",
+          "subject": "Base Interest Rate",
+          "action": "supersedes",
+          "new_value_summary": "11.25% per annum"
+        },
+        {
+          "clause_ref": "",
+          "subject": "Late Payment Penalty",
+          "action": "retains",
+          "new_value_summary": ""
+        }
+      ]
+    },
+    "DocD_Partner_Addendum_2025.pdf": {
+      "doc_name": "DocD_Partner_Addendum_2025.pdf",
+      "doc_id": "ADD-2025-03",
+      "effective_date": "2025-05-01",
+      "amends_doc_ids": [],
+      "clause_changes": [
+        {
+          "clause_ref": "Clause 2.1",
+          "subject": "Borrower Age Requirement",
+          "action": "defines",
+          "new_value_summary": "Minimum age of applicant is 25 years"
+        },
+        {
+          "clause_ref": "Clause 2.2",
+          "subject": "Maximum Loan Repayment Tenure",
+          "action": "defines",
+          "new_value_summary": "Maximum repayment tenure is 48 months from disbursement date"
+        },
+        {
+          "clause_ref": "Clause 3.1",
+          "subject": "Digital Convenience and Late Fee Cap",
+          "action": "defines",
+          "new_value_summary": "Digital Onboarding Fee INR 750 flat, Minimum Monthly Income INR 30,000"
+        }
+      ]
+    }
+  },
+  "id_to_doc_name": {
+    "POL-2023-01": "DocA_Loan_Policy_2023.pdf",
+    "DocA_Loan_Policy_2023.pdf": "DocA_Loan_Policy_2023.pdf",
+    "CIRC-2024-07": "DocB_Circular_2024.pdf",
+    "DocB_Circular_2024.pdf": "DocB_Circular_2024.pdf",
+    "CIRC-2025-12": "DocC_Circular_2025.pdf",
+    "DocC_Circular_2025.pdf": "DocC_Circular_2025.pdf",
+    "ADD-2025-03": "DocD_Partner_Addendum_2025.pdf",
+    "DocD_Partner_Addendum_2025.pdf": "DocD_Partner_Addendum_2025.pdf"
+  },
+  "clause_chains": {
+    "Clause 4.2": [
+      {
+        "clause_ref": "Clause 4.2",
+        "subject": "Base Interest Rate",
+        "doc_name": "DocA_Loan_Policy_2023.pdf",
+        "doc_id": "POL-2023-01",
+        "effective_date": "2023-04-01",
+        "amends_doc_ids": [],
+        "action": "defines",
+        "summary": "9.50% per annum on a reducing balance basis",
+        "chunk_id": "DocA_Loan_Policy_2023.pdf::p1::c3",
+        "page_number": 1,
+        "quote": "Clause 4.2: Base Interest Rate\nThe standard annual interest rate applicable on all approved Retail Personal Loans shall be 9.50% per annum on a reducing balance basis.",
+        "status": "SUPERSEDED",
+        "superseded_by": "CIRC-2025-12"
+      },
+      {
+        "clause_ref": "Clause 4.2",
+        "subject": "Base Interest Rate",
+        "doc_name": "DocB_Circular_2024.pdf",
+        "doc_id": "CIRC-2024-07",
+        "effective_date": "2024-04-01",
+        "amends_doc_ids": [
+          "POL-2023-01"
+        ],
+        "action": "supersedes",
+        "summary": "from 9.50% per annum to 10.50% per annum on a reducing balance basis",
+        "chunk_id": "DocB_Circular_2024.pdf::p1::c4",
+        "page_number": 1,
+        "quote": "Clause 4.2 of POL-2023-01 is hereby superseded. Effective April 1, 2024, the standard annual interest rate applicable on all Retail Personal Loans is revised from 9.50% per annum to 10.50% per annum on a reducing balance basis.",
+        "status": "SUPERSEDED",
+        "superseded_by": "CIRC-2025-12"
+      },
+      {
+        "clause_ref": "Clause 4.2",
+        "subject": "Base Interest Rate",
+        "doc_name": "DocC_Circular_2025.pdf",
+        "doc_id": "CIRC-2025-12",
+        "effective_date": "2025-04-01",
+        "amends_doc_ids": [
+          "CIRC-2024-07"
+        ],
+        "action": "supersedes",
+        "summary": "11.25% per annum",
+        "chunk_id": "DocC_Circular_2025.pdf::p1::c4",
+        "page_number": 1,
+        "quote": "Clause 4.2 as amended by CIRC-2024-07 is hereby superseded. Effective April 1, 2025, the currently applicable standard annual interest rate on Retail Personal Loans shall be 11.25% per annum on a reducing balance basis.",
+        "status": "ACTIVE"
+      }
+    ],
+    "Clause 5.1": [
+      {
+        "clause_ref": "Clause 5.1",
+        "subject": "Late Payment Penalty",
+        "doc_name": "DocA_Loan_Policy_2023.pdf",
+        "doc_id": "POL-2023-01",
+        "effective_date": "2023-04-01",
+        "amends_doc_ids": [],
+        "action": "supersedes",
+        "summary": "2.0% per month shall be levied on the overdue EMI amount (previously unspecified)",
+        "chunk_id": "DocA_Loan_Policy_2023.pdf::p1::c4",
+        "page_number": 1,
+        "quote": "Clause 5.1: Late Payment Penalty\nIf an EMI remains unpaid beyond the 5-day grace period from the due date, a late payment penalty of 2.0% per month shall be levied on the overdue EMI amount.",
+        "status": "SUPERSEDED",
+        "superseded_by": "CIRC-2024-07"
+      },
+      {
+        "clause_ref": "Clause 5.1",
+        "subject": "Late Payment Penalty",
+        "doc_name": "DocB_Circular_2024.pdf",
+        "doc_id": "CIRC-2024-07",
+        "effective_date": "2024-04-01",
+        "amends_doc_ids": [
+          "POL-2023-01"
+        ],
+        "action": "supersedes",
+        "summary": "from 2.0% per month to 3.0% per month on the overdue EMI amount",
+        "chunk_id": "DocB_Circular_2024.pdf::p1::c6",
+        "page_number": 1,
+        "quote": "Clause 5.1 of POL-2023-01 is hereby superseded. Effective April 1, 2024, the late payment penalty for overdue EMIs beyond the 5-day grace period is increased from 2.0% per month to 3.0% per month on the overdue EMI amount.",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  "superseded_chunks": {
+    "DocA_Loan_Policy_2023.pdf::p1::c3": {
+      "clause_ref": "Clause 4.2",
+      "superseded_by_doc": "DocC_Circular_2025.pdf",
+      "superseded_by_doc_id": "CIRC-2025-12",
+      "active_chunk_id": "DocC_Circular_2025.pdf::p1::c4"
+    },
+    "DocB_Circular_2024.pdf::p1::c3": {
+      "clause_ref": "Clause 4.2",
+      "superseded_by_doc": "DocC_Circular_2025.pdf",
+      "superseded_by_doc_id": "CIRC-2025-12",
+      "active_chunk_id": "DocC_Circular_2025.pdf::p1::c4"
+    },
+    "DocB_Circular_2024.pdf::p1::c4": {
+      "clause_ref": "Clause 4.2",
+      "superseded_by_doc": "DocC_Circular_2025.pdf",
+      "superseded_by_doc_id": "CIRC-2025-12",
+      "active_chunk_id": "DocC_Circular_2025.pdf::p1::c4"
+    },
+    "DocA_Loan_Policy_2023.pdf::p1::c4": {
+      "clause_ref": "Clause 5.1",
+      "superseded_by_doc": "DocB_Circular_2024.pdf",
+      "superseded_by_doc_id": "CIRC-2024-07",
+      "active_chunk_id": "DocB_Circular_2024.pdf::p1::c6"
+    }
+  }
+}
