@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+backend/storage/qdrant_db/
+backend/storage/uploaded_docs/
+backend/storage/*.json
+frontend/node_modules/
+frontend/.next/
+frontend/.env*.local

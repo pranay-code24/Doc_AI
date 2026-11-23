@@ -142,46 +142,63 @@ class DocumentAIPipeline:
             retrieved_chunks=context_for_llm,
         )
 
-        # 6. Contradiction-Safe Handling
-        if contradictions and verification_result["abstained"]:
-            conflict_claims = []
-            summary_lines = [
-                "Conflicting clauses were found across active documents, so no single rule can be assumed without resolving the contradiction:"
-            ]
-            for c in contradictions:
-                sa = c["source_a"]
-                sb = c["source_b"]
-                s_a = f"For {c['subject']}, {sa['doc_name']} (Page {sa['page_number']}) states: \"{sa['verbatim_quote']}\""
-                s_b = f"However, {sb['doc_name']} (Page {sb['page_number']}) states: \"{sb['verbatim_quote']}\""
-                summary_lines.append(f"{s_a} {s_b}")
-                for sent, src in [(s_a, sa), (s_b, sb)]:
-                    conflict_claims.append(
-                        {
-                            "sentence": sent,
-                            "english_claim": sent,
-                            "doc_name": src["doc_name"],
-                            "page_number": src["page_number"],
-                            "verbatim_quote": src["verbatim_quote"],
-                            "quote_match_score": 100.0,
-                            "nli_scores": {"entailment": 1.0, "neutral": 0.0, "contradiction": 0.0},
-                            "bboxes": src["bboxes"],
-                            "page_width": src["page_width"],
-                            "page_height": src["page_height"],
-                        }
-                    )
+        # 6. Contradiction-Safe Blocking Gate:
+        # Problem Statement rule: If a claim is contradicted by another active clause, BLOCK it!
+        if contradictions:
+            still_verified = []
+            extra_blocked = list(verification_result["blocked_claims"])
 
-            verification_result["abstained"] = False
-            verification_result["answer"] = " ".join(summary_lines)
-            verification_result["verified_claims"] = conflict_claims
-            verification_result["missing_info"] = (
-                "Active policy conflict detected — manual clarification is required to determine which document takes precedence."
-            )
-            verification_result["faithfulness"] = {
-                "score_percent": 100.0,
-                "verified_sentences": len(conflict_claims),
-                "total_draft_sentences": len(conflict_claims),
-                "displayed_backed_percent": 100.0,
-            }
+            for cl in verification_result["verified_claims"]:
+                is_contradicted = False
+                conflict_note = ""
+                for c in contradictions:
+                    sa, sb = c["source_a"], c["source_b"]
+                    same_doc_page = (
+                        (cl["doc_name"] == sa["doc_name"] and cl["page_number"] == sa["page_number"])
+                        or (cl["doc_name"] == sb["doc_name"] and cl["page_number"] == sb["page_number"])
+                    )
+                    if same_doc_page:
+                        is_contradicted = True
+                        conflict_note = (
+                            f"Contradicted by active conflict on '{c['subject']}' "
+                            f"({sa['doc_name']} p.{sa['page_number']} vs {sb['doc_name']} p.{sb['page_number']})"
+                        )
+                        break
+
+                if is_contradicted:
+                    blocked_copy = dict(cl)
+                    blocked_copy["block_reason"] = conflict_note
+                    extra_blocked.append(blocked_copy)
+                else:
+                    still_verified.append(cl)
+
+            verification_result["verified_claims"] = still_verified
+            verification_result["blocked_claims"] = extra_blocked
+
+            total_claims = len(still_verified) + len(extra_blocked)
+            if not still_verified:
+                verification_result["abstained"] = True
+                verification_result["answer"] = (
+                    "Cannot state a single definitive rule because active documents contradict each other. "
+                    "Conflicting claims were blocked—review the side-by-side Contradiction Alerts below."
+                )
+                verification_result["missing_info"] = (
+                    "A governing precedence clause or amendment circular is missing to resolve which active document overrides the other."
+                )
+                verification_result["faithfulness"] = {
+                    "score_percent": 0.0,
+                    "verified_sentences": 0,
+                    "total_draft_sentences": total_claims,
+                    "displayed_backed_percent": 100.0,
+                }
+            else:
+                verification_result["answer"] = " ".join(c["sentence"] for c in still_verified)
+                verification_result["faithfulness"] = {
+                    "score_percent": round((len(still_verified) / max(total_claims, 1)) * 100.0, 1),
+                    "verified_sentences": len(still_verified),
+                    "total_draft_sentences": total_claims,
+                    "displayed_backed_percent": 100.0,
+                }
 
         return {
             "question": question,
