@@ -95,6 +95,13 @@
           "new_value_summary": "Digital Onboarding Fee INR 750 flat, Minimum Monthly Income INR 30,000"
         }
       ]
+    },
+    "Pranay_Gumashta.pdf": {
+      "doc_name": "Pranay_Gumashta.pdf",
+      "doc_id": "PRANAY-GUMASHTA-PROFILE",
+      "effective_date": "1900-01-01",
+      "amends_doc_ids": [],
+      "clause_changes": []
     }
   },
   "id_to_doc_name": {
@@ -105,7 +112,9 @@
     "CIRC-2025-12": "DocC_Circular_2025.pdf",
     "DocC_Circular_2025.pdf": "DocC_Circular_2025.pdf",
     "ADD-2025-03": "DocD_Partner_Addendum_2025.pdf",
-    "DocD_Partner_Addendum_2025.pdf": "DocD_Partner_Addendum_2025.pdf"
+    "DocD_Partner_Addendum_2025.pdf": "DocD_Partner_Addendum_2025.pdf",
+    "PRANAY-GUMASHTA-PROFILE": "Pranay_Gumashta.pdf",
+    "Pranay_Gumashta.pdf": "Pranay_Gumashta.pdf"
   },
   "clause_chains": {
     "Clause 4.2": [

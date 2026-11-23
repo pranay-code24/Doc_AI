@@ -1,3 +1,4 @@
+import json
 import shutil
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -9,15 +10,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from app.config import SAMPLE_DOCS_DIR, UPLOAD_DOCS_DIR
+from app.config import (
+    BENCHMARK_FILE,
+    DEFAULT_LLM_PROVIDER,
+    GROQ_API_KEY,
+    GROQ_MODEL,
+    OLLAMA_MODEL,
+    SAMPLE_DOCS_DIR,
+    SUPPORTED_LANGUAGES,
+    UPLOAD_DOCS_DIR,
+)
 from app.pipeline import DocumentAIPipeline
+from app.verification.guardrails import validate_pdf_upload
 
 
 pipeline: DocumentAIPipeline | None = None
 
 
 def ensure_initial_docs():
-    """Agar uploaded_docs folder khali hai toh 4 sample PDFs automatically copy kar lo."""
     existing = list(UPLOAD_DOCS_DIR.glob("*.pdf"))
     if not existing and SAMPLE_DOCS_DIR.exists():
         for pdf in SAMPLE_DOCS_DIR.glob("*.pdf"):
@@ -25,7 +35,6 @@ def ensure_initial_docs():
 
 
 def resolve_pdf_path(doc_name: str) -> Path:
-    """Safe filename lookup (path traversal block karta hai)."""
     safe_name = Path(doc_name).name
     for folder in (UPLOAD_DOCS_DIR, SAMPLE_DOCS_DIR):
         candidate = folder / safe_name
@@ -40,10 +49,9 @@ async def lifespan(app: FastAPI):
     ensure_initial_docs()
     print("Initializing Zero-Guessing Document AI Pipeline...")
     pipeline = DocumentAIPipeline()
-    # Agar index abhi khali hai toh auto-ingest karo
     if not pipeline.retriever.chunks:
         pipeline.ingest_folder(UPLOAD_DOCS_DIR)
-    print("Backend Ready on http://localhost:8000")
+    print(f"Backend Ready on http://localhost:8000 | Default LLM Provider: {DEFAULT_LLM_PROVIDER}")
     yield
     if pipeline:
         pipeline.close()
@@ -51,11 +59,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Zero-Guessing & Contradiction-Checking Document AI",
-    version="1.0.0",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
-# Next.js frontend (localhost:3000) ko allow karo
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
@@ -67,12 +74,20 @@ app.add_middleware(
 
 class QueryRequest(BaseModel):
     question: str
+    language: str = "auto"
+    provider: str | None = None
+    use_cache: bool = True
 
 
 @app.get("/api/health")
 def health():
     return {
         "status": "ok",
+        "default_provider": DEFAULT_LLM_PROVIDER,
+        "groq_configured": bool(GROQ_API_KEY),
+        "groq_model": GROQ_MODEL,
+        "ollama_model": OLLAMA_MODEL,
+        "languages": SUPPORTED_LANGUAGES,
         "chunks_indexed": len(pipeline.retriever.chunks) if pipeline else 0,
         "documents": list(pipeline.amendment_graph.docs.keys()) if pipeline else [],
     }
@@ -80,7 +95,6 @@ def health():
 
 @app.get("/api/documents")
 def list_documents() -> dict[str, Any]:
-    """Saare active PDFs, unke page counts, metadata aur amendment chains return karta hai."""
     docs_list = []
     for pdf_path in sorted(UPLOAD_DOCS_DIR.glob("*.pdf")):
         doc = pymupdf.open(pdf_path)
@@ -100,22 +114,25 @@ def list_documents() -> dict[str, Any]:
     return {
         "documents": docs_list,
         "amendment_chains": pipeline.amendment_graph.clause_chains if pipeline else {},
+        "default_provider": DEFAULT_LLM_PROVIDER,
+        "groq_configured": bool(GROQ_API_KEY),
+        "languages": SUPPORTED_LANGUAGES,
     }
 
 
 @app.post("/api/upload")
 async def upload_pdfs(files: list[UploadFile] = File(...)):
-    """Multiple PDFs upload karke automatically parse, index aur amendment graph rebuild karta hai."""
     if not pipeline:
         raise HTTPException(status_code=503, detail="Pipeline still loading")
 
     saved_names = []
     for f in files:
-        if not f.filename or not f.filename.lower().endswith(".pdf"):
-            raise HTTPException(status_code=400, detail=f"Only PDF files are supported: {f.filename}")
+        content = await f.read()
+        ok, err_msg = validate_pdf_upload(f.filename or "", content)
+        if not ok:
+            raise HTTPException(status_code=400, detail=err_msg)
         safe_name = Path(f.filename).name
         dest = UPLOAD_DOCS_DIR / safe_name
-        content = await f.read()
         dest.write_bytes(content)
         saved_names.append(safe_name)
 
@@ -125,7 +142,6 @@ async def upload_pdfs(files: list[UploadFile] = File(...)):
 
 @app.delete("/api/documents/{doc_name}")
 def delete_document(doc_name: str):
-    """Kisi uploaded PDF ko delete karke index rebuild karta hai."""
     if not pipeline:
         raise HTTPException(status_code=503, detail="Pipeline still loading")
 
@@ -138,13 +154,13 @@ def delete_document(doc_name: str):
     if list(UPLOAD_DOCS_DIR.glob("*.pdf")):
         stats = pipeline.ingest_folder(UPLOAD_DOCS_DIR)
     else:
+        pipeline.clear_cache()
         stats = {"documents_indexed": 0, "pages_parsed": 0, "chunks_indexed": 0}
     return {"deleted": safe_name, "stats": stats}
 
 
 @app.post("/api/reset-samples")
 def reset_samples():
-    """Demo ke liye 4 sample PDFs cleanly reload aur re-index karta hai."""
     if not pipeline:
         raise HTTPException(status_code=503, detail="Pipeline still loading")
 
@@ -157,7 +173,6 @@ def reset_samples():
 
 @app.post("/api/query")
 def query_documents(req: QueryRequest) -> dict[str, Any]:
-    """Main Zero-Guessing Verification-First Q&A Endpoint."""
     if not pipeline:
         raise HTTPException(status_code=503, detail="Pipeline still loading")
 
@@ -165,15 +180,39 @@ def query_documents(req: QueryRequest) -> dict[str, Any]:
     if not q:
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
-    return pipeline.ask(q)
+    return pipeline.ask(
+        question=q,
+        language=req.language,
+        provider=req.provider,
+        use_cache=req.use_cache,
+    )
+
+
+@app.get("/api/metrics")
+def get_benchmark_metrics() -> dict[str, Any]:
+    """Saved evaluation benchmark report return karta hai Frontend Metrics Tab ke liye."""
+    if BENCHMARK_FILE.exists():
+        return json.loads(BENCHMARK_FILE.read_text(encoding="utf-8"))
+    return {
+        "has_report": False,
+        "message": "Run benchmark to generate live accuracy & latency proof.",
+    }
+
+
+@app.post("/api/metrics/run")
+def run_live_benchmark(provider: str | None = None) -> dict[str, Any]:
+    """Live 9-case evaluation suite run karke real accuracy, guardrail & latency report save karta hai."""
+    if not pipeline:
+        raise HTTPException(status_code=503, detail="Pipeline still loading")
+
+    from app.evaluation import evaluate_pipeline
+    report = evaluate_pipeline(pipeline, provider=provider)
+    BENCHMARK_FILE.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    return report
 
 
 @app.get("/api/pdf-page/{doc_name}/{page_number}")
 def render_pdf_page(doc_name: str, page_number: int):
-    """
-    Bonus Feature Support: Exact PDF page ko crisp PNG image me render karta hai
-    taaki frontend uske upar pixel-accurate yellow passage highlights draw kar sake.
-    """
     pdf_path = resolve_pdf_path(doc_name)
     doc = pymupdf.open(pdf_path)
     if page_number < 1 or page_number > len(doc):
@@ -194,6 +233,5 @@ def render_pdf_page(doc_name: str, page_number: int):
 
 @app.get("/api/pdf-raw/{doc_name}")
 def get_raw_pdf(doc_name: str):
-    """Download/open original PDF file."""
     pdf_path = resolve_pdf_path(doc_name)
     return FileResponse(path=pdf_path, media_type="application/pdf", filename=pdf_path.name)

@@ -1,5 +1,6 @@
 from typing import Any
 
+from app.config import SUPPORTED_LANGUAGES
 from app.llm.ollama_client import call_ollama_json
 from app.verification.nli_checker import NLIChecker
 from app.verification.quote_matcher import (
@@ -39,21 +40,38 @@ ANSWER_SCHEMA = {
 }
 
 
-SYSTEM_PROMPT = """You are a strict Zero-Guessing Document Verification Assistant.
+BASE_SYSTEM_PROMPT = """You are a strict Zero-Guessing Document Verification Assistant for everyday citizens and auditors.
 RULES YOU MUST NEVER BREAK:
 1. Answer ONLY using facts explicitly stated in the provided EVIDENCE passages. NEVER guess or use outside knowledge.
 2. AMENDMENT PRIORITY RULE: Each evidence header shows a STATUS tag ("ACTIVE" vs "SUPERSEDED"). When asked for the current/applicable rule, base your answer strictly on ACTIVE passages and NEVER state a SUPERSEDED value as currently active.
 3. CONTRADICTION RULE: If two ACTIVE passages give conflicting numbers or rules for the same subject, do NOT pick only one side—state BOTH conflicting rules in separate claims, each citing its own document, page, and verbatim quote.
 4. NEVER put negative/missing statements (like "X is not mentioned") inside "claims". Put missing gaps ONLY in "missing_info" and leave "claims": [] if nothing can be answered.
-5. If the evidence DOES contain the answer (including percentages, rates, or table values), set "has_sufficient_evidence": true and return concise atomic claims.
+5. If the evidence DOES contain the answer (including percentages, rates, or table values), set "has_sufficient_evidence": true and return concise, simple atomic claims.
 6. For EVERY claim inside "claims":
-   - "sentence": one clear factual sentence answering the user. If the user asked in Hindi or Hinglish, write "sentence" in natural Hindi (Devanagari script). Otherwise write in English.
+   - "sentence": one clear, simple, easy-to-understand factual sentence (avoid heavy legal jargon so even a common village citizen understands easily).
    - "english_claim": the exact English factual statement corresponding to "sentence" (if "sentence" is already English, copy it here).
    - "doc_name": exact filename from the evidence header (e.g., "DocC_Circular_2025.pdf").
    - "page_number": exact integer page number from the evidence header.
    - "verbatim_quote": copy-paste an EXACT verbatim substring directly from that evidence passage (never paraphrase or translate it). For tables, copy the exact table row.
 7. Keep "missing_info" as an empty string "" if the question was fully answered by the evidence.
 """
+
+
+def _language_instruction(language: str) -> str:
+    if not language or language == "auto":
+        return (
+            "LANGUAGE RULE: Detect the user's question language. If the user asked in Hindi/Hinglish, "
+            "write 'sentence' in simple everyday Hindi (Devanagari). If asked in Marathi, Bengali, Tamil, "
+            "Telugu, Gujarati, Kannada, or Punjabi, write 'sentence' in that language's native script. "
+            "Otherwise write 'sentence' in simple English. ALWAYS keep 'english_claim' and 'verbatim_quote' in English."
+            "Always keep digits in standard numerals like 30,000 and 11.25%."
+        )
+    lang_label = SUPPORTED_LANGUAGES.get(language, "English")
+    return (
+        f"LANGUAGE RULE: You MUST write every 'sentence' and 'missing_info' in simple, everyday {lang_label} "
+        f"(using its native script if non-English) so a common citizen can easily read it. "
+        f"ALWAYS keep 'english_claim' and 'verbatim_quote' in original English for verification."
+    )
 
 
 class ZeroGuessingVerifier:
@@ -76,7 +94,6 @@ class ZeroGuessingVerifier:
         return "\n\n".join(blocks)
 
     def _check_numbers_grounded(self, claim_text: str, source_text: str) -> tuple[bool, list[str]]:
-        """Deterministic Numeric Guard: claim ka har number source text me exist karna chahiye."""
         claim_nums = extract_numbers(claim_text)
         if not claim_nums:
             return True, []
@@ -88,12 +105,14 @@ class ZeroGuessingVerifier:
         self,
         question: str,
         retrieved_chunks: list[dict[str, Any]],
+        language: str = "auto",
         min_rerank_score: float = -6.0,
     ) -> dict[str, Any]:
         if not retrieved_chunks:
             return self._abstention_response(
                 missing_info="No relevant passages were found in the uploaded documents.",
                 blocked_claims=[],
+                language=language,
             )
 
         top_score = retrieved_chunks[0].get("rerank_score", 0.0)
@@ -101,9 +120,11 @@ class ZeroGuessingVerifier:
             return self._abstention_response(
                 missing_info="The uploaded documents do not contain any clauses matching your question.",
                 blocked_claims=[],
+                language=language,
             )
 
         evidence_text = self._format_evidence(retrieved_chunks)
+        system_prompt = f"{BASE_SYSTEM_PROMPT}\n\n{_language_instruction(language)}"
         user_prompt = (
             f"USER QUESTION:\n{question}\n\n"
             f"EVIDENCE PASSAGES:\n{evidence_text}\n\n"
@@ -111,7 +132,7 @@ class ZeroGuessingVerifier:
         )
 
         draft = call_ollama_json(
-            system_prompt=SYSTEM_PROMPT,
+            system_prompt=system_prompt,
             user_prompt=user_prompt,
             json_schema=ANSWER_SCHEMA,
         )
@@ -124,6 +145,7 @@ class ZeroGuessingVerifier:
                 missing_info=missing_info
                 or "The documents do not contain sufficient evidence to answer this question.",
                 blocked_claims=[],
+                language=language,
             )
 
         verified_claims = []
@@ -143,42 +165,23 @@ class ZeroGuessingVerifier:
                 verbatim_quote=verbatim_quote,
             )
 
-            # Build readable premise (Document Title + Table-converted-to-prose chunk)
             readable_chunk = table_to_readable_prose(q_check["matched_chunk_text"] or verbatim_quote)
             nli_premise = f"Document: {q_check['doc_title']}. {readable_chunk}"
 
-            # Gate 2: Deterministic Numeric Guard
+            # Gate 2: Deterministic Numeric Guard (check english_claim digits against source)
             nums_ok, missing_nums = self._check_numbers_grounded(
-                claim_text=f"{sentence} {english_claim}",
+                claim_text=english_claim,
                 source_text=f"{verbatim_quote} {q_check['matched_chunk_text']}",
             )
 
-            # Gate 3: NLI Entailment Check (sirf tab jab quote real ho)
+            # Gate 3: NLI Entailment Check
             if q_check["matched"]:
-                # Check English claim (always accurate) and also native sentence if different
                 entailed_en, scores_en = self.nli.is_entailed(
                     quote=nli_premise,
                     claim=english_claim,
                 )
-                if sentence != english_claim:
-                    entailed_native, scores_native = self.nli.is_entailed(
-                        quote=nli_premise,
-                        claim=sentence,
-                    )
-                    # Dono me se jo higher entailment ho (and no contradiction in either)
-                    no_contra = (
-                        scores_en["contradiction"] <= 0.25
-                        and scores_native["contradiction"] <= 0.25
-                    )
-                    entailed = (entailed_en or entailed_native) and no_contra
-                    nli_scores = (
-                        scores_native
-                        if scores_native["entailment"] > scores_en["entailment"]
-                        else scores_en
-                    )
-                else:
-                    entailed = entailed_en
-                    nli_scores = scores_en
+                entailed = entailed_en
+                nli_scores = scores_en
             else:
                 entailed = False
                 nli_scores = {"entailment": 0.0, "neutral": 1.0, "contradiction": 0.0}
@@ -223,6 +226,7 @@ class ZeroGuessingVerifier:
             return self._abstention_response(
                 missing_info=reason,
                 blocked_claims=blocked_claims,
+                language=language,
             )
 
         faithfulness_pct = round((verified_count / max(total_draft_claims, 1)) * 100.0, 1)
@@ -242,10 +246,22 @@ class ZeroGuessingVerifier:
             },
         }
 
-    def _abstention_response(self, missing_info: str, blocked_claims: list[dict]) -> dict[str, Any]:
+    def _abstention_response(
+        self,
+        missing_info: str,
+        blocked_claims: list[dict],
+        language: str = "auto",
+    ) -> dict[str, Any]:
+        if language == "hi":
+            prefix = "मेरे पास अपलोड किए गए दस्तावेज़ों में इसका पक्का सबूत नहीं है। अधूरी जानकारी:"
+        elif language == "mr":
+            prefix = "अपलोड केलेल्या कागदपत्रांमध्ये याचा पुरेसा पुरावा नाही. गहाळ माहिती:"
+        else:
+            prefix = "I don't have enough proof in the provided documents to answer this question. Missing evidence:"
+
         return {
             "abstained": True,
-            "answer": f"I don't have enough proof in the provided documents to answer this question. Missing evidence: {missing_info}",
+            "answer": f"{prefix} {missing_info}",
             "verified_claims": [],
             "blocked_claims": blocked_claims,
             "missing_info": missing_info,

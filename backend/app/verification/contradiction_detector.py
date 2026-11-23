@@ -112,7 +112,7 @@ class ContradictionDetector:
         nli_ba = self.nli.predict(premise=c2["text"], hypothesis=c1["text"])
         max_contra = max(nli_ab["contradiction"], nli_ba["contradiction"])
 
-        if max_contra >= 0.50 or (has_numeric_diff and max_contra >= 0.15):
+        if max_contra >= 0.50 or (has_numeric_diff and (max_contra >= 0.12 or len(shared_kw) >= 3)):
             return True, max_contra
         return False, max_contra
 
@@ -123,8 +123,8 @@ class ContradictionDetector:
         active_chunks = [
             c
             for c in resolved_chunks
-            if c.get("is_active", True) and c.get("rerank_score", 0.0) >= -4.0
-        ][:8]
+            if c.get("is_active", True) and c.get("rerank_score", 0.0) >= -2.5
+        ][:6]
 
         if len(active_chunks) < 2:
             return []

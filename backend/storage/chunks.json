@@ -610,5 +610,317 @@
         500.0
       ]
     ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c0",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "PRANAY GUMASHTA",
+    "chunk_type": "text",
+    "text": "PRANAY GUMASHTA\n\u00bd Nagpur, India | \u00d3 +91-7000667133 | R pranaygumashta@gmail.com | \u00b0 LinkedIn | \u0087 GitHub",
+    "bboxes": [
+      [
+        163.2,
+        13.75,
+        448.1,
+        38.54
+      ],
+      [
+        66.44,
+        48.12,
+        541.53,
+        60.21
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c1",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "EDUCATION",
+    "chunk_type": "text",
+    "text": "EDUCATION\nG.H. Raisoni College Of Engineering Nagpur, Maharashtra Bachelor of Technology in Computer Science and Engineering; CGPA: 8.19 Aug 2023 \u2013 Jun 2027",
+    "bboxes": [
+      [
+        28.8,
+        72.91,
+        112.01,
+        84.87
+      ],
+      [
+        28.8,
+        95.79,
+        582.57,
+        121.3
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c2",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "EXPERIENCE",
+    "chunk_type": "text",
+    "text": "EXPERIENCE",
+    "bboxes": [
+      [
+        28.8,
+        130.03,
+        118.73,
+        141.98
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c3",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "Agoda Gurugram, India Software Engineer Intern Jun 2026 \u2013 Sep 2026",
+    "chunk_type": "text",
+    "text": "Agoda Gurugram, India Software Engineer Intern Jun 2026 \u2013 Sep 2026\n\u2022 Built log-analysis workflows for the Scala-based search-api (2M+ daily events), validating display and booking metrics to reduce tracking discrepancies by 12%.\n\u2022 Resolved Internal Routing and telemetry bottlenecks during Agile sprints, optimizing JSON serialization to reduce log payload overhead by 15%.\n\u2022 Optimized metric-tracking pipelines using Kafka and Kibana, analyzing 50+ GB of daily log data to ensure highly reliable booking conversion analytics for downstream reporting. TechNirmaan Hyderabad, India Data Structures & Algorithms Mentor Intern Dec 2025 \u2013 Jan 2026\n\u2022 Mentored 400+ students in Data Structures by designing custom problem sets focused on reusable Algorithmic Patterns (e.g., Sliding Window, BFS, DP).\n\u2022 Conducted daily Code Reviews and led Debugging Sessions, optimizing student solutions to consistently reduce Time Complexity from O(N2) to O(N log N).",
+    "bboxes": [
+      [
+        28.8,
+        148.92,
+        582.47,
+        174.42
+      ],
+      [
+        43.53,
+        179.77,
+        556.72,
+        202.99
+      ],
+      [
+        43.53,
+        207.44,
+        577.91,
+        230.42
+      ],
+      [
+        28.8,
+        234.87,
+        582.47,
+        289.18
+      ],
+      [
+        43.53,
+        293.97,
+        560.44,
+        317.19
+      ],
+      [
+        43.53,
+        321.64,
+        562.89,
+        344.62
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c4",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "PROJECTS",
+    "chunk_type": "text",
+    "text": "PROJECTS",
+    "bboxes": [
+      [
+        28.8,
+        354.17,
+        100.06,
+        366.13
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c5",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "Career Mania - Job Portal W | MERN Stack, Redis, Cloudinary, JWT Aug 2025 \u2013 Sep 2025",
+    "chunk_type": "text",
+    "text": "Career Mania - Job Portal W | MERN Stack, Redis, Cloudinary, JWT Aug 2025 \u2013 Sep 2025\n\u2022 Architected a scalable platform using automated Resume Parsing to improve match relevance by 35%, and optimized MongoDB Aggregation Pipelines to reduce latency by 40%.\n\u2022 Implemented Role-Based Access Control (RBAC) via JWT & Bcrypt, and integrated Multer & Cloudinary for concurrent uploads with 99.9% availability.",
+    "bboxes": [
+      [
+        28.8,
+        376.12,
+        583.11,
+        388.07
+      ],
+      [
+        43.53,
+        391.87,
+        579.26,
+        415.09
+      ],
+      [
+        43.53,
+        419.53,
+        576.1,
+        442.52
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c6",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "Data Ingestion Tool W | FastAPI, ClickHouse, Docker, React.js Feb 2025 \u2013 Mar 2025",
+    "chunk_type": "text",
+    "text": "Data Ingestion Tool W | FastAPI, ClickHouse, Docker, React.js Feb 2025 \u2013 Mar 2025\n\u2022 Engineered a Dockerized Python Stream Processing engine, inserting 50,000+ rows/minute into ClickHouse with Fault-Tolerant schema handling.\n\u2022 Developed a real-time tracking dashboard in React.js to visualize ingestion telemetry, secured via strict JWT Authentication protocols.",
+    "bboxes": [
+      [
+        28.8,
+        452.9,
+        583.11,
+        464.85
+      ],
+      [
+        43.53,
+        468.65,
+        565.85,
+        491.87
+      ],
+      [
+        43.53,
+        496.31,
+        538.29,
+        519.3
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c7",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "TECHNICAL SKILLS",
+    "chunk_type": "text",
+    "text": "TECHNICAL SKILLS",
+    "bboxes": [
+      [
+        28.8,
+        530.84,
+        161.84,
+        542.8
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c8",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "Languages: C++, Java, JavaScript, TypeScript, HTML, CSS, SQL, Python, Scala",
+    "chunk_type": "text",
+    "text": "Languages: C++, Java, JavaScript, TypeScript, HTML, CSS, SQL, Python, Scala",
+    "bboxes": [
+      [
+        39.6,
+        552.63,
+        441.1,
+        563.54
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c9",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "Frontend Frameworks: React.js, Tailwind CSS, ShadCN UI, Bootstrap, Zustand",
+    "chunk_type": "text",
+    "text": "Frontend Frameworks: React.js, Tailwind CSS, ShadCN UI, Bootstrap, Zustand",
+    "bboxes": [
+      [
+        39.6,
+        569.57,
+        439.0,
+        580.47
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c10",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "Backend Frameworks: Node.js, Express.js, FastAPI, REST APIs",
+    "chunk_type": "text",
+    "text": "Backend Frameworks: Node.js, Express.js, FastAPI, REST APIs\nDatabases: MongoDB, MySQL, ClickHouse, Redis Developer Tools: Git, Docker, Kafka, Kibana, Linux, Postman, Stripe, Cloudinary, Zod",
+    "bboxes": [
+      [
+        39.6,
+        586.5,
+        363.76,
+        597.41
+      ],
+      [
+        39.6,
+        603.44,
+        470.74,
+        630.29
+      ]
+    ]
+  },
+  {
+    "chunk_id": "Pranay_Gumashta.pdf::p1::c11",
+    "doc_name": "Pranay_Gumashta.pdf",
+    "page_number": 1,
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "section_title": "ACHIEVEMENTS",
+    "chunk_type": "text",
+    "text": "ACHIEVEMENTS\n\u2022 2x Smart India Hackathon Grand Finalist & Team Lead (2025 & 2024): Selected in the top 1% of teams nationwide by the Ministry of Education for building scalable e-governance solutions.\n\u2022 Hack This Fall 2025 (Microsoft Hyderabad): Shortlisted among the top 5% coders in India to participate for the exclusive 8-hour buildathon at the Microsoft campus.\n\u2022 Major Hackathons: National Runner-Up at Hacksagon 2026 (top 100 of 4,000+ teams at IIIT Gwalior) & CODESRIJAN Grand Finalist (72-hour solo build, defended architecture to a 15-member panel).\n\u2022 Competitive Programming & ICPC: Secured AIR 1177 (2025) and AIR 1101 (2024) in the ICPC Prelims against 5,000+ teams, and solved 1000+ problems across CodeForces, LeetCode, and CodeChef.",
+    "bboxes": [
+      [
+        28.8,
+        640.36,
+        140.57,
+        652.32
+      ],
+      [
+        29.16,
+        662.66,
+        547.72,
+        684.7
+      ],
+      [
+        29.16,
+        692.08,
+        565.25,
+        714.13
+      ],
+      [
+        29.16,
+        721.5,
+        541.19,
+        743.55
+      ],
+      [
+        29.16,
+        750.93,
+        571.51,
+        772.97
+      ]
+    ]
   }
 ]
